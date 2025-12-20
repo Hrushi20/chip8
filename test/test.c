@@ -1,5 +1,7 @@
 #include "../chip8.h"
 #include <assert.h>
+#include <fcntl.h>
+#include <stdint.h>
 #include <stdio.h>
 
 #define ANSI_COLOR_RED "\x1b[31m"
@@ -7,9 +9,11 @@
 #define ANSI_COLOR_RESET "\x1b[0m"
 #define ANSI_COLOR_YELLOW "\e[0;33m"
 
+#define TEST_FILE "test.txt"
 void test_decode_instr() {
   // printf(ANSI_COLOR_YELLOW "Start test_decode_instr()" ANSI_COLOR_RESET
   // "\n");
+  //
   assert(decode_instr(0x00E0) == _00E0);
   assert(decode_instr(0x00EE) == _00EE);
   assert(decode_instr(0x1123) == _1NNN);
@@ -42,11 +46,51 @@ void test_decode_instr() {
   assert(decode_instr(0xF133) == _FX33);
   assert(decode_instr(0xF155) == _FX55);
   assert(decode_instr(0xF165) == _FX65);
-  printf(ANSI_COLOR_GREEN "Pass test_decode_instr()" ANSI_COLOR_RESET "\n");
+  printf(ANSI_COLOR_GREEN "Pass %s" ANSI_COLOR_RESET "\n", __func__);
+}
+
+void test_init_memory() {
+  int fd = open(TEST_FILE, O_RDONLY);
+  int bytes = init_memory(fd);
+  assert(bytes == MAX_ROM_SIZE);
+  printf(ANSI_COLOR_GREEN "Pass %s" ANSI_COLOR_RESET "\n", __func__);
+}
+
+void test_init_cpu() {
+  assert(init_cpu() == 0);
+  printf(ANSI_COLOR_GREEN "Pass %s" ANSI_COLOR_RESET "\n", __func__);
+}
+
+void test_stack_fn() {
+
+  struct stack *s = get_stack();
+
+  push_stack(0xFFF);
+  push_stack(0xEEE);
+  assert(s->idx == 2);
+
+  assert(pop_stack() == 0xEEE);
+  assert(pop_stack() == 0xFFF);
+  assert(s->idx == 0);
+
+  printf(ANSI_COLOR_GREEN "Pass %s" ANSI_COLOR_RESET "\n", __func__);
+}
+
+void test_fetch_instr() {
+  int fd = open(TEST_FILE, O_RDONLY);
+  int bytes = init_memory(fd);
+  init_cpu();
+
+  uint16_t instr = fetch_instr(); // Test its' a fixed byte
+  // TODO assert here
 }
 
 int main() {
   test_decode_instr();
+  test_init_memory();
+  test_init_cpu();
+  test_fetch_instr();
+  test_stack_fn();
   printf(ANSI_COLOR_GREEN "Executed all tests" ANSI_COLOR_RESET "\n");
   return 0;
 }

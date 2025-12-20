@@ -1,18 +1,23 @@
 #include <stdint.h>
 
 #define MAX_ROM_SIZE 0xFFF
-#define MAX_GPR 16
-#define STACK_SIZE 64
+#define MAX_GPR 16 // General Purpose Register
+#define STACK_SIZE 16
 #define PROGRAM_START_ADDR 0x200
 
-typedef struct {
+struct registers {
   uint16_t idx;
   uint8_t stack_ptr;
   uint8_t delay_timer;
   uint8_t sound_timer;
   uint16_t pc;
   uint8_t gpr[MAX_GPR];
-} regstr;
+};
+
+struct stack {
+  uint16_t stk[STACK_SIZE];
+  uint8_t idx;
+};
 
 static uint16_t instr_identifier[] = {
     0x00EE, 0x00E0, 0x1000, 0x2000, 0x3000, 0x4000, 0x5000, 0x6000, 0x7000,
@@ -67,3 +72,14 @@ void init_register();
 uint16_t fetch_instr();
 Instr decode_instr(uint16_t raw_instr);
 void execute_instr(Instr instr);
+int init_memory(int fd);
+int init_cpu();
+uint16_t pop_stack();
+void push_stack(uint16_t addr);
+
+// #ifdef TESTING
+uint8_t *get_memory();
+
+struct registers get_registers();
+struct stack *get_stack();
+// #endif

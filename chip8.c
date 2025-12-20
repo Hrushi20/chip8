@@ -4,16 +4,16 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <sys/types.h>
 #include <unistd.h>
 
 uint8_t memory[MAX_ROM_SIZE];
 
-regstr registers;
+struct registers reg;
+struct stack stack;
 
-uint16_t fetch_instr() {
-  return (memory[registers.pc] << 2) | memory[registers.pc + 1];
-}
+uint16_t fetch_instr() { return (memory[reg.pc] << 2) | memory[reg.pc + 1]; }
 
 Instr decode_instr(uint16_t raw_instr) {
   int idx;
@@ -96,30 +96,122 @@ Instr decode_instr(uint16_t raw_instr) {
   return UNKNOWN;
 }
 
+void panic(char *msg) {
+  printf("%s", msg);
+  _exit(-1);
+}
+
 void execute_instr(Instr instr) {
-  // Execute Instr
-  printf("Executing Instr: %d", instr);
+  switch (instr) {
+  case UNKNOWN:
+    panic("Invalid Instruction. Terminating Program!!!\n");
+    break;
+  case _00E0:
+    // TODO
+    panic("TODO, Clear the terminal via ncurses\n");
+    break;
+  case _00EE:
+    break;
+    // case:
+    //   break;
+    // case:
+    //   break;
+    // case:
+    //   break;
+    // case:
+    //   break;
+    // case:
+    //   break;
+    // case:
+    //   break;
+    // case:
+    //   break;
+    // case:
+    //   break;
+    // case:
+    //   break;
+    // case:
+    //   break;
+    // case:
+    //   break;
+    // case:
+    //   break;
+    // case:
+    //   break;
+    // case:
+    //   break;
+    // case:
+    //   break;
+    // case:
+    //   break;
+    // case:
+    //   break;
+    // case:
+    //   break;
+    // case:
+    //   break;
+    // case:
+    //   break;
+    // case:
+    //   break;
+    // case:
+    //   break;
+  }
 }
 
 void start_program() {
   while (true) {
 
-    // Fetch
     uint16_t raw_instr = fetch_instr();
-    // Decode
     Instr instr = decode_instr(raw_instr);
-    // Execute
     execute_instr(instr);
   }
 }
 
-// int main(int argc, char *argv[]) {
-//
-//   assert(argc == 2);
-//
-//   int rom = open(argv[1], O_RDONLY);
-//   assert(read(rom, memory, MAX_ROM_SIZE) == MAX_ROM_SIZE);
-//
-//   start_program();
-//   return 0;
-// }
+int init_memory(int fd) {
+  assert(fd > 0);
+
+  int bytes = read(fd, memory, MAX_ROM_SIZE);
+  assert(bytes != -1);
+
+  // Init stack
+  stack.idx = 0;
+  return bytes;
+}
+
+int init_cpu() {
+  reg.pc = PROGRAM_START_ADDR;
+  reg.stack_ptr = 0;
+  return 0;
+};
+
+void push_stack(uint16_t addr) { stack.stk[stack.idx++] = addr; }
+
+uint16_t pop_stack() {
+  if (stack.idx == 0) {
+    panic("Stack Empty, Nothing to PoP from stack\n");
+  }
+
+  return stack.stk[--stack.idx];
+}
+
+#ifndef TESTING
+int main(int argc, char *argv[]) {
+
+  assert(argc == 2);
+
+  int rom = open(argv[1], O_RDONLY);
+
+  init_cpu();
+  init_memory(rom);
+  start_program();
+  return 0;
+}
+#endif
+
+#ifdef TESTING
+uint8_t *get_memory() { return memory; }
+
+struct registers get_registers() { return reg; }
+struct stack *get_stack() { return &stack; }
+#endif
