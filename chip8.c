@@ -2,9 +2,10 @@
 #include <assert.h>
 #include <fcntl.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
-#include <stdlib.h>
+#include <string.h>
 #include <sys/types.h>
 #include <unistd.h>
 
@@ -161,21 +162,29 @@ void execute_instr(Instr instr) {
 
 void start_program() {
   while (true) {
-
     uint16_t raw_instr = fetch_instr();
     Instr instr = decode_instr(raw_instr);
     execute_instr(instr);
   }
 }
 
-int init_memory(int fd) {
-  assert(fd > 0);
+int init_memory(char *file_name) {
+  FILE *file = fopen(file_name, "r");
+  assert(file != NULL);
 
-  int bytes = read(fd, memory, MAX_ROM_SIZE);
+  size_t no_of_fonts = ARRAY_SIZE(fonts);
+
+  // Check this. Pref to use memmove
+  memcpy(memory, fonts, no_of_fonts);
+  // Might have bug
+  int bytes = fread(memory + PROGRAM_START_ADDR, sizeof(*memory),
+                    (MAX_ROM_SIZE - PROGRAM_START_ADDR),
+                    file); // Check Return value
   assert(bytes != -1);
 
   // Init stack
   stack.idx = 0;
+  fclose(file);
   return bytes;
 }
 
@@ -200,10 +209,8 @@ int main(int argc, char *argv[]) {
 
   assert(argc == 2);
 
-  int rom = open(argv[1], O_RDONLY);
-
   init_cpu();
-  init_memory(rom);
+  init_memory(argv[1]);
   start_program();
   return 0;
 }

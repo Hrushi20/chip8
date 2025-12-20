@@ -9,7 +9,7 @@
 #define ANSI_COLOR_RESET "\x1b[0m"
 #define ANSI_COLOR_YELLOW "\e[0;33m"
 
-#define TEST_FILE "test.txt"
+#define TEST_FILE "/home/pc/chip8/test/test.txt"
 void test_decode_instr() {
   // printf(ANSI_COLOR_YELLOW "Start test_decode_instr()" ANSI_COLOR_RESET
   // "\n");
@@ -50,9 +50,29 @@ void test_decode_instr() {
 }
 
 void test_init_memory() {
-  int fd = open(TEST_FILE, O_RDONLY);
-  int bytes = init_memory(fd);
-  assert(bytes == MAX_ROM_SIZE);
+  int bytes = init_memory(TEST_FILE);
+  assert(bytes == (MAX_ROM_SIZE - PROGRAM_START_ADDR));
+
+  uint8_t *memory = get_memory();
+
+  // Check fonts position matches.
+  for (int i = 0; i < ARRAY_SIZE(fonts); i++, memory++) {
+    assert(*memory == fonts[i]);
+  }
+
+  // Check rom position matches.
+  memory = get_memory();
+  memory += PROGRAM_START_ADDR;
+
+  FILE *file = fopen(TEST_FILE, "r");
+  uint8_t buf[MAX_ROM_SIZE - PROGRAM_START_ADDR];
+  bytes = fread(buf, sizeof(*buf), MAX_ROM_SIZE - PROGRAM_START_ADDR, file);
+  assert(bytes != -1);
+
+  for (int i = 0; i < (MAX_ROM_SIZE - PROGRAM_START_ADDR); i++, memory++) {
+    assert(*memory == buf[i]);
+  }
+  fclose(file);
   printf(ANSI_COLOR_GREEN "Pass %s" ANSI_COLOR_RESET "\n", __func__);
 }
 
@@ -77,8 +97,7 @@ void test_stack_fn() {
 }
 
 void test_fetch_instr() {
-  int fd = open(TEST_FILE, O_RDONLY);
-  int bytes = init_memory(fd);
+  int bytes = init_memory(TEST_FILE);
   init_cpu();
 
   uint16_t instr = fetch_instr(); // Test its' a fixed byte
