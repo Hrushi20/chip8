@@ -102,61 +102,75 @@ void panic(char *msg) {
   _exit(-1);
 }
 
-void execute_instr(Instr instr) {
+void execute_instr(Instr instr, uint16_t raw_instr) {
+  uint16_t first_nibble = raw_instr & 0xF000;
+  uint16_t second_nibble = raw_instr & 0x0F00;
+  uint16_t thrid_nibble = raw_instr & 0x00F0;
+  uint16_t fourth_nibble = raw_instr & 0x000F;
+
   switch (instr) {
   case UNKNOWN:
     panic("Invalid Instruction. Terminating Program!!!\n");
     break;
   case _00E0:
-    // TODO
-    panic("TODO, Clear the terminal via ncurses\n");
+    clear_screen();
     break;
   case _00EE:
     break;
-    // case:
-    //   break;
-    // case:
-    //   break;
-    // case:
-    //   break;
-    // case:
-    //   break;
-    // case:
-    //   break;
-    // case:
-    //   break;
-    // case:
-    //   break;
-    // case:
-    //   break;
-    // case:
-    //   break;
-    // case:
-    //   break;
-    // case:
-    //   break;
-    // case:
-    //   break;
-    // case:
-    //   break;
-    // case:
-    //   break;
-    // case:
-    //   break;
-    // case:
-    //   break;
-    // case:
-    //   break;
-    // case:
-    //   break;
-    // case:
-    //   break;
-    // case:
-    //   break;
-    // case:
-    //   break;
-    // case:
-    //   break;
+  case _1NNN:
+    reg.pc = second_nibble | thrid_nibble | fourth_nibble;
+    break;
+  case _2NNN:
+    break;
+  case _3XKK:
+    break;
+  case _4XKK:
+    break;
+  case _5XY0:
+    break;
+  case _6XKK:
+    reg.gpr[second_nibble] = thrid_nibble | fourth_nibble;
+    break;
+  case _7XKK:
+    break;
+  case _8XY0:
+    break;
+  case _8XY1:
+    break;
+  case _8XY2:
+    break;
+  case _8XY3:
+    break;
+  case _8XY4:
+    break;
+  case _8XY5:
+    break;
+  case _8XY6:
+    break;
+  case _8XY7:
+    break;
+  case _8XYE:
+    break;
+  case _9XY0:
+    break;
+  case _ANNN:
+    reg.idx = second_nibble | thrid_nibble | fourth_nibble;
+    break;
+  case _BNNN:
+    break;
+  case _CXKK:
+    break;
+  case _DXYN:
+    uint8_t row = reg.gpr[second_nibble];
+    uint8_t col = reg.gpr[thrid_nibble];
+    uint8_t size = fourth_nibble;
+    uint8_t *sprite = memmove(sprite, memory + reg.idx, size);
+    draw(row, col, sprite, size);
+    break;
+  case _EX9E:
+    break;
+  case _EXA1:
+    break;
   }
 }
 
@@ -164,7 +178,7 @@ void start_program() {
   while (true) {
     uint16_t raw_instr = fetch_instr();
     Instr instr = decode_instr(raw_instr);
-    execute_instr(instr);
+    execute_instr(instr, raw_instr);
   }
 }
 

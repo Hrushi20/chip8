@@ -104,12 +104,15 @@ void test_fetch_instr() {
   // TODO assert here
 }
 
+void test_init_window() { init_screen(); }
+
 int main() {
   test_decode_instr();
   test_init_memory();
   test_init_cpu();
   test_fetch_instr();
   test_stack_fn();
+  test_init_window();
   printf(ANSI_COLOR_GREEN "Executed all tests" ANSI_COLOR_RESET "\n");
   return 0;
 }

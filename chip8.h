@@ -1,3 +1,4 @@
+#include "display.h"
 #include <stdint.h>
 #include <stdio.h>
 
@@ -63,7 +64,7 @@ typedef enum {
 void init_register();
 uint16_t fetch_instr();
 Instr decode_instr(uint16_t raw_instr);
-void execute_instr(Instr instr);
+void execute_instr(Instr instr, uint16_t raw_instr);
 int init_memory(char *);
 int init_cpu();
 uint16_t pop_stack();
