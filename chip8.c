@@ -1,6 +1,7 @@
 #include "chip8.h"
 #include <assert.h>
 #include <fcntl.h>
+#include <ncurses.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -119,10 +120,11 @@ void panic(char *msg) {
 }
 
 void execute_instr(Instr instr, uint16_t raw_instr) {
-  uint16_t first_nibble = raw_instr & 0xF000;
-  uint16_t second_nibble = raw_instr & 0x0F00;
-  uint16_t thrid_nibble = raw_instr & 0x00F0;
-  uint16_t fourth_nibble = raw_instr & 0x000F;
+  uint16_t NNN = raw_instr & 0xFFF;
+  uint8_t X = (raw_instr & 0xF00) >> 8;
+  uint8_t Y = (raw_instr & 0xF0) >> 4;
+  uint16_t KK = raw_instr & 0xFF;
+  uint8_t N = raw_instr & 0xF;
 
   // printf("Instr: %d, Raw Instr: %x\n", instr, raw_instr);
   switch (instr) {
@@ -135,7 +137,7 @@ void execute_instr(Instr instr, uint16_t raw_instr) {
   case _00EE:
     break;
   case _1NNN:
-    reg.pc = second_nibble | thrid_nibble | fourth_nibble;
+    reg.pc = NNN;
     break;
   case _2NNN:
     break;
@@ -146,9 +148,10 @@ void execute_instr(Instr instr, uint16_t raw_instr) {
   case _5XY0:
     break;
   case _6XKK:
-    reg.gpr[second_nibble] = thrid_nibble | fourth_nibble;
+    reg.gpr[X] = KK;
     break;
   case _7XKK:
+    reg.gpr[X] += KK;
     break;
   case _8XY0:
     break;
@@ -171,19 +174,18 @@ void execute_instr(Instr instr, uint16_t raw_instr) {
   case _9XY0:
     break;
   case _ANNN:
-    reg.idx = second_nibble | thrid_nibble | fourth_nibble;
+    reg.idx = NNN;
     break;
   case _BNNN:
     break;
   case _CXKK:
     break;
   case _DXYN:
-    uint8_t row = reg.gpr[second_nibble];
-    uint8_t col = reg.gpr[thrid_nibble];
-    uint8_t size = fourth_nibble;
-    uint8_t *sprite = malloc(sizeof(uint8_t) * size);
-    memmove(sprite, memory + reg.idx, size);
-    draw_framebuffer(row, col, sprite, size);
+    uint8_t x = reg.gpr[X];
+    uint8_t y = reg.gpr[Y];
+    uint8_t *sprite = malloc(sizeof(uint8_t) * N);
+    memmove(sprite, memory + reg.idx, N);
+    draw_framebuffer(x, y, sprite, N);
     free(sprite);
     break;
   case _EX9E:
@@ -194,7 +196,7 @@ void execute_instr(Instr instr, uint16_t raw_instr) {
 }
 
 void start_program() {
-  init_screen();
+  // init_screen();
   while (true) {
     uint16_t raw_instr = fetch_instr();
     Instr instr = decode_instr(raw_instr);

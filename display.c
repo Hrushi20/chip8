@@ -1,6 +1,7 @@
 #include "display.h"
 #include "assert.h"
 #include <ncurses.h>
+#include <ncursesw/ncurses.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -18,19 +19,21 @@ void init_screen() {
 
   // Within This window chip8 renders
   start_color();
-  win = newwin(MAX_Y + 2, MAX_X + 2, 1, 1);
-  box(win, 0, 0);
+  win = newwin(MAX_Y * 2, MAX_X * 2, 1, 1);
   wrefresh(win);
 }
 
 void render() {
-  assert(win != NULL);
   for (int i = 0; i < MAX_Y; i++) {
     for (int j = 0; j < MAX_X; j++) {
+      // mvwaddstr(win, i, j, frame_buffer[i][j] ? "##" : "  ");
+      printf("%s", frame_buffer[i][j] ? "##" : "  ");
     }
+
+    printf("\n");
   }
   // iterate frame buffer and add to screen.
-  // wrefresh(win);
+  wrefresh(win);
 }
 
 void clear_screen() { wclear(win); }
@@ -41,7 +44,8 @@ uint8_t draw_framebuffer(uint8_t _x, uint8_t _y, uint8_t *sprite,
   uint8_t vf_flag = 0;
 
   uint8_t x = WRAP_X(_x);
-  uint8_t y = WRAP_Y(_y);
+  // uint8_t y = WRAP_Y(_y);
+  uint8_t y = _y;
   // Iterate through bytes
   for (int i = 0; i < size; i++) {
 
@@ -61,7 +65,7 @@ uint8_t draw_framebuffer(uint8_t _x, uint8_t _y, uint8_t *sprite,
     }
 
     x = WRAP_X(_x);
-    y = WRAP_Y(y + 1);
+    y = y + 1;
   }
 
   return vf_flag;
