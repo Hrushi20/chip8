@@ -5,6 +5,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -14,7 +15,22 @@ uint8_t memory[MAX_ROM_SIZE];
 struct registers reg;
 struct stack stack;
 
-uint16_t fetch_instr() { return (memory[reg.pc] << 2) | memory[reg.pc + 1]; }
+void sync_cpu_cycle() {
+  int ms_to_sleep = 1 / CPU_FREQUENCY;
+  sleep(ms_to_sleep);
+}
+uint16_t fetch_instr() {
+  // printf("Pc: %d\n", reg.pc);
+
+  uint16_t top_bit = memory[reg.pc];
+  uint16_t bottom_bit = memory[reg.pc + 1];
+  uint16_t instr = (memory[reg.pc] << 8) | memory[reg.pc + 1];
+  // printf("Top: %x, Bottom:  %x, Instr: %x\n", top_bit, bottom_bit, instr);
+  // printf("Top Bit: %b, Bottom Bit: %b, Instr: %b\n", top_bit, bottom_bit,
+  //        instr);
+  reg.pc += 2; // Bug if PC is used after this. Check thoroughly.
+  return instr;
+}
 
 Instr decode_instr(uint16_t raw_instr) {
   int idx;
@@ -108,6 +124,7 @@ void execute_instr(Instr instr, uint16_t raw_instr) {
   uint16_t thrid_nibble = raw_instr & 0x00F0;
   uint16_t fourth_nibble = raw_instr & 0x000F;
 
+  // printf("Instr: %d, Raw Instr: %x\n", instr, raw_instr);
   switch (instr) {
   case UNKNOWN:
     panic("Invalid Instruction. Terminating Program!!!\n");
@@ -164,8 +181,10 @@ void execute_instr(Instr instr, uint16_t raw_instr) {
     uint8_t row = reg.gpr[second_nibble];
     uint8_t col = reg.gpr[thrid_nibble];
     uint8_t size = fourth_nibble;
-    uint8_t *sprite = memmove(sprite, memory + reg.idx, size);
+    uint8_t *sprite = malloc(sizeof(uint8_t) * size);
+    memmove(sprite, memory + reg.idx, size);
     draw(row, col, sprite, size);
+    free(sprite);
     break;
   case _EX9E:
     break;
@@ -175,10 +194,12 @@ void execute_instr(Instr instr, uint16_t raw_instr) {
 }
 
 void start_program() {
+  init_screen();
   while (true) {
     uint16_t raw_instr = fetch_instr();
     Instr instr = decode_instr(raw_instr);
     execute_instr(instr, raw_instr);
+    sync_cpu_cycle();
   }
 }
 

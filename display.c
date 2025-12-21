@@ -1,4 +1,5 @@
 #include "display.h"
+#include "assert.h"
 #include <ncurses.h>
 #include <stdint.h>
 #include <unistd.h>
@@ -20,12 +21,18 @@ void init_screen() {
 }
 
 uint8_t draw(uint8_t row, uint8_t col, uint8_t *memory, uint8_t size) {
+  assert(row >= 0 && col >= 0 && size > 0);
+  assert(win != NULL);
+  // endwin();
+
   uint8_t vf_flag = 0;
 
+  uint8_t x = col + 1;
+  uint8_t y = row + 1;
   // Iterate Each Byte
   for (int i = 0; i < size; i++) {
     uint16_t itr = 256;
-    wmove(win, row, col);
+    wmove(win, y, x);
     // Iterate each bit in byte
     while (itr != 0) {
       uint8_t screen_sprite = winch(win) != ' ';        // 0 or 1
@@ -44,9 +51,10 @@ uint8_t draw(uint8_t row, uint8_t col, uint8_t *memory, uint8_t size) {
 
       itr = itr >> 1;
     }
-    row++;
+    y++;
   }
 
+  wrefresh(win);
   return vf_flag;
 }
 
@@ -91,7 +99,6 @@ void clear_screen() { wclear(win); }
 //   // char s[30];
 //   // mvwinstr(win, 1, 1, s);
 //   // mvwaddstr(win, 2, 1, s);
-//   wrefresh(win);
 //
 //   sleep(5);
 //   endwin();

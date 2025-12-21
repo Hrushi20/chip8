@@ -7,6 +7,7 @@
 #define STACK_SIZE 16
 #define PROGRAM_START_ADDR 0x200
 #define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
+#define CPU_FREQUENCY 700
 
 struct registers {
   uint16_t idx;
