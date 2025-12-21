@@ -2,9 +2,12 @@
 #include "assert.h"
 #include <ncurses.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <unistd.h>
 
 WINDOW *win;
+
+uint8_t frame_buffer[MAX_Y][MAX_X];
 
 void init_screen() {
 
@@ -15,50 +18,54 @@ void init_screen() {
 
   // Within This window chip8 renders
   start_color();
-  win = newwin(MAX_HEIGHT, MAX_WIDTH, 0, 0);
+  win = newwin(MAX_Y + 2, MAX_X + 2, 1, 1);
   box(win, 0, 0);
   wrefresh(win);
 }
 
-uint8_t draw(uint8_t row, uint8_t col, uint8_t *memory, uint8_t size) {
-  assert(row >= 0 && col >= 0 && size > 0);
+void render() {
   assert(win != NULL);
-  // endwin();
-
-  uint8_t vf_flag = 0;
-
-  uint8_t x = col + 1;
-  uint8_t y = row + 1;
-  // Iterate Each Byte
-  for (int i = 0; i < size; i++) {
-    uint16_t itr = 256;
-    wmove(win, y, x);
-    // Iterate each bit in byte
-    while (itr != 0) {
-      uint8_t screen_sprite = winch(win) != ' ';        // 0 or 1
-      uint8_t curr_sprite = (*(memory + i) & itr) != 0; // 0 or 1
-      uint8_t new_sprite = screen_sprite ^ curr_sprite;
-
-      if (new_sprite) {
-        waddch(win, '*');
-      } else {
-        waddch(win, ' ');
-      }
-
-      if (screen_sprite && curr_sprite) {
-        vf_flag = 1; // Erasing a bit
-      }
-
-      itr = itr >> 1;
+  for (int i = 0; i < MAX_Y; i++) {
+    for (int j = 0; j < MAX_X; j++) {
     }
-    y++;
   }
-
-  wrefresh(win);
-  return vf_flag;
+  // iterate frame buffer and add to screen.
+  // wrefresh(win);
 }
 
 void clear_screen() { wclear(win); }
+
+uint8_t draw_framebuffer(uint8_t _x, uint8_t _y, uint8_t *sprite,
+                         uint8_t size) {
+
+  uint8_t vf_flag = 0;
+
+  uint8_t x = WRAP_X(_x);
+  uint8_t y = WRAP_Y(_y);
+  // Iterate through bytes
+  for (int i = 0; i < size; i++) {
+
+    uint8_t itr = 0x80;
+    while (itr > 0) {
+      uint8_t curr_sprite = (sprite[i] & itr) != 0;
+      uint8_t screen_sprite = frame_buffer[y][x];
+      uint8_t new_sprite = curr_sprite ^ screen_sprite;
+
+      frame_buffer[y][x] = new_sprite;
+
+      if (curr_sprite && screen_sprite) {
+        vf_flag = 1;
+      }
+      itr = itr >> 1;
+      x = WRAP_X(x + 1);
+    }
+
+    x = WRAP_X(_x);
+    y = WRAP_Y(y + 1);
+  }
+
+  return vf_flag;
+}
 
 // 10 means empty.
 // int main() {

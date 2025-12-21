@@ -183,7 +183,7 @@ void execute_instr(Instr instr, uint16_t raw_instr) {
     uint8_t size = fourth_nibble;
     uint8_t *sprite = malloc(sizeof(uint8_t) * size);
     memmove(sprite, memory + reg.idx, size);
-    draw(row, col, sprite, size);
+    draw_framebuffer(row, col, sprite, size);
     free(sprite);
     break;
   case _EX9E:
@@ -199,6 +199,7 @@ void start_program() {
     uint16_t raw_instr = fetch_instr();
     Instr instr = decode_instr(raw_instr);
     execute_instr(instr, raw_instr);
+    render();
     sync_cpu_cycle();
   }
 }
