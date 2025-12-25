@@ -104,7 +104,74 @@ void test_fetch_instr() {
   // TODO assert here
 }
 
-void test_init_window() { init_screen(); }
+void test_execute_instr() {
+
+  execute_instr(_00E0, 0xE0);
+  // 0x00E0
+  // 0x00EE
+  // 0x1000
+  // 0x1FFF
+  // 0x2000
+  // 0x2FFF
+  //
+  //
+  // 0x3F00
+  // 0x4F00
+  // 0x5FF0
+  // 0x9FF0
+  //
+  //
+  // 0x6FF0
+  // 0x6FFF
+  // 0x7F01
+  // 0x7FFF
+  //
+  //
+  // 0x8FF0
+  // 0x8FF1
+  // 0x8FF2
+  // 0x8FF3
+  // 0x8FF4
+  // 0x8FF5
+  // 0x8FF7
+  // 0x8F06
+  // 0x8F0E
+  //
+  //
+  // 0xA000
+  // 0xAFFF
+  // 0xB000
+  // 0xBFFF
+  // 0xFF1E
+  //
+  //
+  // 0xC000
+  // 0xCFFF
+  //
+  //
+  // 0xD005
+  // 0xDFF1
+  // 0xDXY0
+  //
+  //
+  // 0xEF9E
+  // 0xEFA1
+  //
+  //
+  // 0xFF07
+  // 0xFF0A
+  // 0xFF15
+  // 0xFF18
+  //
+  //
+  // 0xFF29
+  // 0xFF33
+  //
+  //
+  // 0xFF55
+  // 0xFF65
+  printf(ANSI_COLOR_GREEN "Pass %s" ANSI_COLOR_RESET "\n", __func__);
+}
 
 int main() {
   test_decode_instr();
@@ -112,7 +179,7 @@ int main() {
   test_init_cpu();
   test_fetch_instr();
   test_stack_fn();
-  test_init_window();
+  test_execute_instr();
   printf(ANSI_COLOR_GREEN "Executed all tests" ANSI_COLOR_RESET "\n");
   return 0;
 }

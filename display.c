@@ -19,18 +19,18 @@ void init_screen() {
 
   // Within This window chip8 renders
   start_color();
-  win = newwin(MAX_Y * 2, MAX_X * 2, 1, 1);
+  win = newwin(MAX_Y, MAX_X, 0, 0);
   wrefresh(win);
 }
 
 void render() {
   for (int i = 0; i < MAX_Y; i++) {
     for (int j = 0; j < MAX_X; j++) {
-      // mvwaddstr(win, i, j, frame_buffer[i][j] ? "##" : "  ");
-      printf("%s", frame_buffer[i][j] ? "##" : "  ");
+      mvwaddstr(win, i, j, frame_buffer[i][j] ? "#" : " ");
+      // printf("%s", frame_buffer[i][j] ? "##" : "  ");
     }
 
-    printf("\n");
+    // printf("\n");
   }
   // iterate frame buffer and add to screen.
   wrefresh(win);

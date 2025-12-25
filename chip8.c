@@ -20,6 +20,9 @@ void sync_cpu_cycle() {
   int ms_to_sleep = 1 / CPU_FREQUENCY;
   sleep(ms_to_sleep);
 }
+
+void increment_pc() { reg.pc += 2; }
+
 uint16_t fetch_instr() {
   // printf("Pc: %d\n", reg.pc);
 
@@ -29,7 +32,7 @@ uint16_t fetch_instr() {
   // printf("Top: %x, Bottom:  %x, Instr: %x\n", top_bit, bottom_bit, instr);
   // printf("Top Bit: %b, Bottom Bit: %b, Instr: %b\n", top_bit, bottom_bit,
   //        instr);
-  reg.pc += 2; // Bug if PC is used after this. Check thoroughly.
+  increment_pc();
   return instr;
 }
 
@@ -135,17 +138,25 @@ void execute_instr(Instr instr, uint16_t raw_instr) {
     clear_screen();
     break;
   case _00EE:
+    reg.pc = pop_stack();
     break;
   case _1NNN:
     reg.pc = NNN;
     break;
   case _2NNN:
+    push_stack(reg.pc);
     break;
   case _3XKK:
+    if (reg.gpr[X] == KK)
+      increment_pc();
     break;
   case _4XKK:
+    if (reg.gpr[X] != KK)
+      increment_pc();
     break;
   case _5XY0:
+    if (reg.gpr[X] == reg.gpr[Y])
+      increment_pc();
     break;
   case _6XKK:
     reg.gpr[X] = KK;
@@ -172,6 +183,8 @@ void execute_instr(Instr instr, uint16_t raw_instr) {
   case _8XYE:
     break;
   case _9XY0:
+    if (reg.gpr[X] != reg.gpr[Y])
+      increment_pc();
     break;
   case _ANNN:
     reg.idx = NNN;
@@ -196,7 +209,7 @@ void execute_instr(Instr instr, uint16_t raw_instr) {
 }
 
 void start_program() {
-  // init_screen();
+  init_screen();
   while (true) {
     uint16_t raw_instr = fetch_instr();
     Instr instr = decode_instr(raw_instr);
