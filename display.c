@@ -25,8 +25,10 @@ void init_screen() {
 }
 
 void render() {
-  if (!is_draw)
+  is_draw &= true;
+  if (!is_draw) {
     return;
+  }
   for (int i = 0; i < MAX_Y; i++) {
     for (int j = 0; j < MAX_X; j++) {
       mvwaddstr(win, i, j, frame_buffer[i][j] ? "#" : " ");

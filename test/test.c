@@ -59,7 +59,7 @@ void test_decode_instr() {
   assert(decode_instr(0xF133) == _FX33);
   assert(decode_instr(0xF155) == _FX55);
   assert(decode_instr(0xF165) == _FX65);
-  TEST_PASS;
+  TEST_PASS
 }
 
 void test_init_memory() {
@@ -85,13 +85,13 @@ void test_init_memory() {
   }
   fclose(file);
 
-  TEST_PASS;
+  TEST_PASS
 }
 
 void test_init_cpu() {
   assert(init_cpu() == 0);
 
-  TEST_PASS;
+  TEST_PASS
 }
 
 void test_stack_fn() {
@@ -104,7 +104,7 @@ void test_stack_fn() {
   assert(pop_stack() == 0xFFF);
   assert(stack.idx == 0);
 
-  TEST_PASS;
+  TEST_PASS
 }
 
 void test_fetch_instr() {
@@ -126,7 +126,7 @@ void test_execute_instr_00E0() {
   }
 
   assert(is_draw);
-  TEST_PASS;
+  TEST_PASS
 }
 
 // Test Stack
@@ -134,7 +134,7 @@ void test_execute_instr_00EE() {
   printf("TODO. Implement: %s\n", __func__);
   exit(1);
 
-  TEST_PASS;
+  TEST_PASS
 }
 
 void test_execute_instr_1NNN() {
@@ -144,7 +144,7 @@ void test_execute_instr_1NNN() {
   EXEC_INSTR(_1NNN, 0x1FFF);
   assert(reg.pc == 0xFFF);
 
-  TEST_PASS;
+  TEST_PASS
 }
 
 void test_execute_instr_2NNN() {
@@ -160,7 +160,7 @@ void test_execute_instr_2NNN() {
   assert(pc == 0x50);
   assert(reg.pc == 0xFFF);
 
-  TEST_PASS;
+  TEST_PASS
 }
 
 void test_execute_instr_3XKK() {
@@ -174,7 +174,7 @@ void test_execute_instr_3XKK() {
   EXEC_INSTR(_3XKK, 0x3F01);
   assert(reg.pc == 0x60);
 
-  TEST_PASS;
+  TEST_PASS
 }
 
 void test_execute_instr_4XKK() {
@@ -187,7 +187,7 @@ void test_execute_instr_4XKK() {
   EXEC_INSTR(_4XKK, 0x4F20);
   assert(reg.pc == 0x70);
 
-  TEST_PASS;
+  TEST_PASS
 }
 
 void test_execute_instr_5XY0() {
@@ -202,14 +202,14 @@ void test_execute_instr_5XY0() {
   EXEC_INSTR(_5XY0, 0x5FE0);
   assert(reg.pc == 0x70);
 
-  TEST_PASS;
+  TEST_PASS
 }
 
 void test_execute_instr_6XKK() {
   EXEC_INSTR(_6XKK, 0x6FAE);
   assert(reg.gpr[0xF] == 0xAE);
 
-  TEST_PASS;
+  TEST_PASS
 }
 
 void test_execute_instr_7XKK() {
@@ -217,7 +217,7 @@ void test_execute_instr_7XKK() {
   EXEC_INSTR(_7XKK, 0x7FFE);
   assert(reg.gpr[0xF] == 0x1);
 
-  TEST_PASS;
+  TEST_PASS
 }
 
 void test_execute_instr_9XY0() {
@@ -232,25 +232,25 @@ void test_execute_instr_9XY0() {
   EXEC_INSTR(_9XY0, 0x9FE0);
   assert(reg.pc == 0x72);
 
-  TEST_PASS;
+  TEST_PASS
 }
 
 void test_execute_instr_ANNN() {
   EXEC_INSTR(_ANNN, 0xAFEF);
   assert(reg.idx == 0xFEF);
-  TEST_PASS;
+  TEST_PASS
 }
 
 void test_execute_instr_BNNN() {
   reg.gpr[0x0] = 4;
   EXEC_INSTR(_BNNN, 0xBFEF);
   assert(reg.pc == 0xFF3);
-  TEST_PASS;
+  TEST_PASS
 }
 
 void test_execute_instr_CXKK() {
   EXEC_INSTR(_CXKK, 0xCF3F);
-  TEST_PASS;
+  TEST_PASS
 }
 
 void test_execute_instr_DXYN() {
@@ -259,48 +259,116 @@ void test_execute_instr_DXYN() {
   exit(1);
 }
 
-void test_execute_instr() {
+void test_execute_instr_8XY0() {
+  reg.gpr[0xF] = 30;
+  reg.gpr[0x3] = 40;
+  EXEC_INSTR(_8XY0, 0x8F30);
+  assert(reg.gpr[0xF] == reg.gpr[0x3]);
+  TEST_PASS
+}
 
-  // 0x00EE
-  //
-  //
-  // 0x8FF0
-  // 0x8FF1
-  // 0x8FF2
-  // 0x8FF3
-  // 0x8FF4
-  // 0x8FF5
-  // 0x8FF7
-  // 0x8F06
-  // 0x8F0E
-  //
-  //
-  // 0xFF1E
-  //
-  //
-  // 0xD005
-  // 0xDFF1
-  // 0xDXY0
-  //
-  //
-  // 0xEF9E
-  // 0xEFA1
-  //
-  //
-  // 0xFF07
-  // 0xFF0A
-  // 0xFF15
-  // 0xFF18
-  //
-  //
-  // 0xFF29
-  // 0xFF33
-  //
-  //
-  // 0xFF55
-  // 0xFF65
+void test_execute_instr_8XY1() {
+  uint8_t data = 30;
+  reg.gpr[0xF] = data;
+  reg.gpr[0x3] = 40;
+  EXEC_INSTR(_8XY1, 0x8F31);
+  assert((data | reg.gpr[0x3]) == reg.gpr[0xF]);
+  TEST_PASS
+}
 
-  TEST_PASS;
+void test_execute_instr_8XY2() {
+  uint8_t data = 30;
+  reg.gpr[0xF] = data;
+  reg.gpr[0x3] = 40;
+  EXEC_INSTR(_8XY2, 0x8F32);
+  assert((data & reg.gpr[0x3]) == reg.gpr[0xF]);
+  TEST_PASS
+}
+
+void test_execute_instr_8XY3() {
+  uint8_t data = 30;
+  reg.gpr[0xF] = data;
+  reg.gpr[0x3] = 40;
+  EXEC_INSTR(_8XY3, 0x8F33);
+  assert((data ^ reg.gpr[0x3]) == reg.gpr[0xF]);
+  TEST_PASS
+}
+
+void test_execute_instr_8XY4() {
+  // Test Carry bit.
+  reg.gpr[0xA] = 0xFF;
+  reg.gpr[0xB] = 0x2;
+  EXEC_INSTR(_8XY4, 0x8AB4);
+  assert(reg.gpr[0xA] == 0x1);
+  assert(reg.gpr[0xF] == 0x1);
+
+  // Without Carry bit.
+  reg.gpr[0xA] = 0xF0;
+  reg.gpr[0xB] = 0x2;
+  EXEC_INSTR(_8XY4, 0x8AB4);
+  assert(reg.gpr[0xA] == 0xF2);
+  assert(reg.gpr[0xF] == 0x0);
+  TEST_PASS
+}
+
+void test_execute_instr_8XY5() {
+  uint8_t data = 0xE;
+  reg.gpr[0xA] = data;
+  reg.gpr[0xB] = 0xF;
+  EXEC_INSTR(_8XY5, 0x8AB5);
+  assert(reg.gpr[0xF] == 0);
+  assert(reg.gpr[0xA] == reg.gpr[0xB] - data);
+
+  data = 0xF;
+  reg.gpr[0xA] = data;
+  reg.gpr[0xB] = 0xE;
+  EXEC_INSTR(_8XY5, 0x8AB5);
+  assert(reg.gpr[0xF] == 1);
+  assert(reg.gpr[0xA] == data - reg.gpr[0xB]);
+  TEST_PASS
+}
+
+void test_execute_instr_8XY6() {
+  // Least sig bit set.
+  uint8_t data = 0x5;
+  reg.gpr[0x1] = data;
+  EXEC_INSTR(_8XY6, 0x8136);
+  assert((data >> 1) == reg.gpr[0x1]);
+  assert(reg.gpr[0xF] == 1);
+
+  // Least sig bit unset.
+  data = 0x4;
+  reg.gpr[0x1] = data;
+  EXEC_INSTR(_8XY6, 0x8136);
+  assert((data >> 1) == reg.gpr[0x1]);
+  assert(reg.gpr[0xF] == 0);
+  TEST_PASS
+}
+
+void test_execute_instr_8XY7() {
+
+  uint8_t data = 0xE;
+  reg.gpr[0xA] = data;
+  reg.gpr[0xB] = 0xF;
+  EXEC_INSTR(_8XY7, 0x8AB7);
+  assert(reg.gpr[0xF] == 1);
+  assert(reg.gpr[0xA] == reg.gpr[0xB] - data);
+
+  data = 0xF;
+  reg.gpr[0xA] = data;
+  reg.gpr[0xB] = 0xE;
+  EXEC_INSTR(_8XY7, 0x8AB7);
+  assert(reg.gpr[0xF] == 0);
+  assert(reg.gpr[0xA] == data - reg.gpr[0xB]);
+  TEST_PASS
+}
+void test_execute_instr_8XYE() {
+  uint8_t data = 0xFF;
+  reg.gpr[0x1] = data;
+  EXEC_INSTR(_8XYE, 0x813E);
+  assert((uint8_t)(data << 1) == reg.gpr[0x1]);
+  assert(reg.gpr[0xF] == 1);
+  TEST_PASS
 }
 
 int main() {
@@ -309,7 +377,6 @@ int main() {
   test_init_cpu();
   test_fetch_instr();
   test_stack_fn();
-  test_execute_instr();
 
   // Execute Instr
   test_execute_instr_00E0();
@@ -325,6 +392,15 @@ int main() {
   test_execute_instr_BNNN();
   test_execute_instr_CXKK();
   // test_execute_instr_DXYN()
+  test_execute_instr_8XY0();
+  test_execute_instr_8XY1();
+  test_execute_instr_8XY2();
+  test_execute_instr_8XY3();
+  test_execute_instr_8XY4();
+  test_execute_instr_8XY5();
+  test_execute_instr_8XY6();
+  test_execute_instr_8XY7();
+  test_execute_instr_8XYE();
   printf(ANSI_COLOR_GREEN "Executed all tests" ANSI_COLOR_RESET "\n");
   return 0;
 }
