@@ -316,8 +316,9 @@ void test_execute_instr_8XY5() {
   reg.gpr[0xA] = data;
   reg.gpr[0xB] = 0xF;
   EXEC_INSTR(_8XY5, 0x8AB5);
+  uint8_t res = data - reg.gpr[0xB];
   assert(reg.gpr[0xF] == 0);
-  assert(reg.gpr[0xA] == reg.gpr[0xB] - data);
+  assert(reg.gpr[0xA] == res);
 
   data = 0xF;
   reg.gpr[0xA] = data;
@@ -359,7 +360,8 @@ void test_execute_instr_8XY7() {
   reg.gpr[0xB] = 0xE;
   EXEC_INSTR(_8XY7, 0x8AB7);
   assert(reg.gpr[0xF] == 0);
-  assert(reg.gpr[0xA] == data - reg.gpr[0xB]);
+  uint8_t res = reg.gpr[0xB] - data;
+  assert(reg.gpr[0xA] == res);
   TEST_PASS
 }
 void test_execute_instr_8XYE() {

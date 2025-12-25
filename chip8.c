@@ -181,34 +181,28 @@ void execute_instr(Instr instr, uint16_t raw_instr) {
     reg.gpr[X] ^= reg.gpr[Y];
     break;
   case _8XY4:
-    reg.gpr[0xF] = reg.gpr[X] + reg.gpr[Y] > 255 ? 1 : 0;
+    uint8_t data = reg.gpr[X];
     reg.gpr[X] += reg.gpr[Y];
+    reg.gpr[0xF] = data + reg.gpr[Y] > 255 ? 1 : 0;
     break;
   case _8XY5:
-    if (reg.gpr[X] > reg.gpr[Y]) {
-      reg.gpr[0xF] = 1;
-      reg.gpr[X] -= reg.gpr[Y];
-    } else {
-      reg.gpr[0xF] = 0;
-      reg.gpr[X] = reg.gpr[Y] - reg.gpr[X];
-    }
+    data = reg.gpr[X];
+    reg.gpr[X] -= reg.gpr[Y];
+    reg.gpr[0xF] = data >= reg.gpr[Y];
     break;
   case _8XY6:
-    reg.gpr[0xF] = reg.gpr[X] & 0x1;
+    data = reg.gpr[X];
     reg.gpr[X] >>= 1;
+    reg.gpr[0xF] = data & 0x1;
     break;
   case _8XY7:
-    if (reg.gpr[Y] > reg.gpr[X]) {
-      reg.gpr[0xF] = 1;
-      reg.gpr[X] = reg.gpr[Y] - reg.gpr[X];
-    } else {
-      reg.gpr[0xF] = 0;
-      reg.gpr[X] -= reg.gpr[Y];
-    }
+    reg.gpr[X] = reg.gpr[Y] - reg.gpr[X];
+    reg.gpr[0xF] = reg.gpr[Y] > reg.gpr[X];
     break;
   case _8XYE:
-    reg.gpr[0xF] = (reg.gpr[X] & 0x8) > 0;
+    data = reg.gpr[X];
     reg.gpr[X] <<= 1;
+    reg.gpr[0xF] = (data & 0x8) > 0;
     break;
   case _9XY0:
     if (reg.gpr[X] != reg.gpr[Y])
