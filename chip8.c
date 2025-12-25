@@ -9,12 +9,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
+#include <time.h>
 #include <unistd.h>
 
 uint8_t memory[MAX_ROM_SIZE];
 
 struct registers reg;
 struct stack stack;
+bool is_draw;
 
 void sync_cpu_cycle() {
   int ms_to_sleep = 1 / CPU_FREQUENCY;
@@ -136,6 +138,7 @@ void execute_instr(Instr instr, uint16_t raw_instr) {
     break;
   case _00E0:
     clear_screen();
+    is_draw = true;
     break;
   case _00EE:
     reg.pc = pop_stack();
@@ -145,6 +148,7 @@ void execute_instr(Instr instr, uint16_t raw_instr) {
     break;
   case _2NNN:
     push_stack(reg.pc);
+    reg.pc = NNN;
     break;
   case _3XKK:
     if (reg.gpr[X] == KK)
@@ -190,8 +194,11 @@ void execute_instr(Instr instr, uint16_t raw_instr) {
     reg.idx = NNN;
     break;
   case _BNNN:
+    reg.pc = reg.gpr[0x0] + NNN;
     break;
   case _CXKK:
+    uint8_t random = rand() % 256;
+    reg.gpr[X] = random & KK;
     break;
   case _DXYN:
     uint8_t x = reg.gpr[X];
@@ -200,6 +207,7 @@ void execute_instr(Instr instr, uint16_t raw_instr) {
     memmove(sprite, memory + reg.idx, N);
     draw_framebuffer(x, y, sprite, N);
     free(sprite);
+    is_draw = true;
     break;
   case _EX9E:
     break;
@@ -210,6 +218,7 @@ void execute_instr(Instr instr, uint16_t raw_instr) {
 
 void start_program() {
   init_screen();
+  srand(time(NULL)); // Init random
   while (true) {
     uint16_t raw_instr = fetch_instr();
     Instr instr = decode_instr(raw_instr);
@@ -265,11 +274,4 @@ int main(int argc, char *argv[]) {
   start_program();
   return 0;
 }
-#endif
-
-#ifdef TESTING
-uint8_t *get_memory() { return memory; }
-
-struct registers get_registers() { return reg; }
-struct stack *get_stack() { return &stack; }
 #endif

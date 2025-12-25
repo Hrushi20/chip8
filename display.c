@@ -9,6 +9,7 @@
 WINDOW *win;
 
 uint8_t frame_buffer[MAX_Y][MAX_X];
+extern bool is_draw;
 
 void init_screen() {
 
@@ -24,6 +25,8 @@ void init_screen() {
 }
 
 void render() {
+  if (!is_draw)
+    return;
   for (int i = 0; i < MAX_Y; i++) {
     for (int j = 0; j < MAX_X; j++) {
       mvwaddstr(win, i, j, frame_buffer[i][j] ? "#" : " ");
@@ -36,7 +39,14 @@ void render() {
   wrefresh(win);
 }
 
-void clear_screen() { wclear(win); }
+// Erase Frame Buffer
+void clear_screen() {
+  for (int i = 0; i < MAX_Y; i++) {
+    for (int j = 0; j < MAX_X; j++) {
+      frame_buffer[i][j] = 0;
+    }
+  }
+}
 
 uint8_t draw_framebuffer(uint8_t _x, uint8_t _y, uint8_t *sprite,
                          uint8_t size) {

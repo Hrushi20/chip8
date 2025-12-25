@@ -71,13 +71,6 @@ int init_cpu();
 uint16_t pop_stack();
 void push_stack(uint16_t addr);
 
-// #ifdef TESTING
-uint8_t *get_memory();
-
-struct registers get_registers();
-struct stack *get_stack();
-// #endif
-
 static uint8_t fonts[] = {
     0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
     0x20, 0x60, 0x20, 0x20, 0x70, // 1
