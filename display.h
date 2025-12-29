@@ -9,7 +9,7 @@
 #define WRAP_Y(y) y % MAX_Y
 
 void init_screen();
-void render();
+bool render(bool is_draw);
 void clear_screen();
 uint8_t draw_framebuffer(uint8_t row, uint8_t col, uint8_t *sprite,
                          uint8_t size);

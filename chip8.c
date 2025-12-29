@@ -272,7 +272,7 @@ void start_program() {
     uint16_t raw_instr = fetch_instr();
     Instr instr = decode_instr(raw_instr);
     execute_instr(instr, raw_instr);
-    render();
+    is_draw = render(is_draw);
     sync_cpu_cycle();
   }
 }
