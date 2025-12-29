@@ -20,7 +20,7 @@ void init_screen() {
 
   // Within This window chip8 renders
   start_color();
-  win = newwin(MAX_Y, MAX_X, 0, 0);
+  win = newwin(MAX_Y + MAX_Y, MAX_X + MAX_Y, 0, 0);
   wrefresh(win);
 }
 
@@ -31,7 +31,7 @@ void render() {
   }
   for (int i = 0; i < MAX_Y; i++) {
     for (int j = 0; j < MAX_X; j++) {
-      mvwaddstr(win, i, j, frame_buffer[i][j] ? "#" : " ");
+      mvwaddstr(win, i, j, frame_buffer[i][j] ? "##" : "  ");
       // printf("%s", frame_buffer[i][j] ? "##" : "  ");
     }
 
@@ -82,6 +82,8 @@ uint8_t draw_framebuffer(uint8_t _x, uint8_t _y, uint8_t *sprite,
 
   return vf_flag;
 }
+
+uint8_t get_keypress() { return wgetch(win); }
 
 // 10 means empty.
 // int main() {

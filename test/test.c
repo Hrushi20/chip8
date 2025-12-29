@@ -373,6 +373,74 @@ void test_execute_instr_8XYE() {
   TEST_PASS
 }
 
+void test_execute_instr_EX9E() {}
+
+void test_execute_instr_EXA1() {}
+
+void test_execute_instr_FX07() {
+  reg.delay_timer = 0xFC;
+  EXEC_INSTR(_FX07, 0xF307);
+  assert(reg.gpr[0x3] == reg.delay_timer);
+  TEST_PASS
+}
+
+void test_execute_instr_FX0A() {
+  // TEST TODO>
+}
+
+void test_execute_instr_FX15() {
+  reg.gpr[0x9] = 0x39;
+  EXEC_INSTR(_FX15, 0xF915);
+  assert(reg.delay_timer == reg.gpr[0x9]);
+  TEST_PASS
+}
+void test_execute_instr_FX18() {
+  reg.gpr[0x9] = 0x20;
+  EXEC_INSTR(_FX18, 0xF918);
+  assert(reg.sound_timer == 0x20);
+  TEST_PASS
+}
+void test_execute_instr_FX1E() {
+  uint16_t data = 0x30;
+  reg.idx = data;
+  reg.gpr[0xC] = 0x20;
+  EXEC_INSTR(_FX1E, 0xFC1E);
+  assert(reg.idx == data + reg.gpr[0xC]);
+  TEST_PASS
+}
+void test_execute_instr_FX29() {}
+void test_execute_instr_FX33() {}
+
+void test_execute_instr_FX55() {
+  for (int i = 0; i < 10; i++) {
+    reg.gpr[i] = i;
+  }
+
+  reg.idx = 10;
+  EXEC_INSTR(_FX55, 0xF455);
+
+  for (int i = 0; i < 4; i++) {
+    assert(memory[reg.idx + i] == reg.gpr[i]);
+  }
+
+  TEST_PASS
+}
+
+void test_execute_instr_FX65() {
+  for (int i = 10; i < 20; i++) {
+    memory[i] = i;
+  }
+
+  reg.idx = 10;
+  EXEC_INSTR(_FX65, 0xF465);
+
+  for (int i = 0; i < 4; i++) {
+    assert(reg.gpr[i] == reg.idx + i);
+  }
+
+  TEST_PASS
+}
+
 int main() {
   test_decode_instr();
   test_init_memory();
@@ -403,6 +471,17 @@ int main() {
   test_execute_instr_8XY6();
   test_execute_instr_8XY7();
   test_execute_instr_8XYE();
+  test_execute_instr_EXA1();
+  test_execute_instr_EX9E();
+  test_execute_instr_FX07();
+  test_execute_instr_FX0A();
+  test_execute_instr_FX15();
+  test_execute_instr_FX18();
+  test_execute_instr_FX1E();
+  test_execute_instr_FX29();
+  test_execute_instr_FX33();
+  test_execute_instr_FX55();
+  test_execute_instr_FX65();
   printf(ANSI_COLOR_GREEN "Executed all tests" ANSI_COLOR_RESET "\n");
   return 0;
 }

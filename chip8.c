@@ -197,7 +197,7 @@ void execute_instr(Instr instr, uint16_t raw_instr) {
     break;
   case _8XY7:
     reg.gpr[X] = reg.gpr[Y] - reg.gpr[X];
-    reg.gpr[0xF] = reg.gpr[Y] > reg.gpr[X];
+    reg.gpr[0xF] = reg.gpr[Y] >= reg.gpr[X];
     break;
   case _8XYE:
     data = reg.gpr[X];
@@ -232,22 +232,35 @@ void execute_instr(Instr instr, uint16_t raw_instr) {
   case _EXA1:
     break;
   case _FX07:
+    reg.gpr[X] = reg.delay_timer;
     break;
   case _FX0A:
+    reg.gpr[X] = get_keypress();
     break;
   case _FX15:
+    reg.delay_timer = reg.gpr[X];
     break;
   case _FX18:
+    reg.sound_timer = reg.gpr[X];
     break;
   case _FX1E:
+    reg.idx += reg.gpr[X];
     break;
   case _FX29:
+    // Check this carefully.
+    // 0x5 is the offset for each font.
+    reg.idx = 0x5 * reg.gpr[X];
     break;
   case _FX33:
+    memory[reg.idx] = (reg.gpr[X]) / 100;
+    memory[reg.idx + 1] = (reg.gpr[X] / 10) % 10;
+    memory[reg.idx + 2] = (reg.gpr[X]) % 10;
     break;
   case _FX55:
+    memmove(memory + reg.idx, reg.gpr, sizeof(uint8_t) * (X + 1));
     break;
   case _FX65:
+    memmove(reg.gpr, memory + reg.idx, sizeof(uint8_t) * (X + 1));
     break;
   }
 }
