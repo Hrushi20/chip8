@@ -19,8 +19,8 @@ struct stack stack;
 bool is_draw;
 
 void sync_cpu_cycle() {
-  int ms_to_sleep = 1 / CPU_FREQUENCY;
-  sleep(ms_to_sleep);
+  double ms_to_sleep = 100000.0 / CPU_FREQUENCY;
+  usleep(ms_to_sleep);
 }
 
 void increment_pc() { reg.pc += 2; }
@@ -202,7 +202,7 @@ void execute_instr(Instr instr, uint16_t raw_instr) {
   case _8XYE:
     data = reg.gpr[X];
     reg.gpr[X] <<= 1;
-    reg.gpr[0xF] = (data & 0x8) > 0;
+    reg.gpr[0xF] = (data & 0x80) != 0;
     break;
   case _9XY0:
     if (reg.gpr[X] != reg.gpr[Y])

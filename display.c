@@ -29,9 +29,14 @@ bool render(bool is_draw) {
     return is_draw;
   }
   // iterate frame buffer and add to screen.
+  int y, x;
+  getmaxyx(stdscr, y, x);
+  // TO Center the display
+  int start_y = (y - MAX_Y) / 2;
+  int start_x = (x - MAX_X) / 2;
   for (int i = 0; i < MAX_Y; i++) {
     for (int j = 0; j < MAX_X; j++) {
-      mvaddstr(i, j, frame_buffer[i][j] ? "#" : " ");
+      mvaddch(start_y + i, start_x + j, frame_buffer[i][j] ? '#' : ' ');
     }
   }
   refresh();
@@ -72,7 +77,6 @@ uint8_t draw_framebuffer(uint8_t _x, uint8_t _y, uint8_t *sprite,
       itr = itr >> 1;
       x = WRAP_X(x + 1);
     }
-
     x = WRAP_X(_x);
     y = y + 1;
   }
