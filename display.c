@@ -58,8 +58,7 @@ uint8_t draw_framebuffer(uint8_t _x, uint8_t _y, uint8_t *sprite,
   uint8_t vf_flag = 0;
 
   uint8_t x = WRAP_X(_x);
-  // uint8_t y = WRAP_Y(_y);
-  uint8_t y = _y;
+  uint8_t y = WRAP_Y(_y);
   // Iterate through bytes
   for (int i = 0; i < size; i++) {
 
@@ -78,7 +77,7 @@ uint8_t draw_framebuffer(uint8_t _x, uint8_t _y, uint8_t *sprite,
       x = WRAP_X(x + 1);
     }
     x = WRAP_X(_x);
-    y = y + 1;
+    y = WRAP_Y(y + 1);
   }
 
   return vf_flag;
